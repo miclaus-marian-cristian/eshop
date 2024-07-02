@@ -1,4 +1,4 @@
-package com.mcm.category_catalog;
+package com.mcm.category_catalog.repository;
 
 import java.util.UUID;
 
