@@ -1,0 +1,13 @@
+server:
+  port: 8100
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+      - id: product-catalog
+        uri: lb:http://PRODUCT-CATALOG
+        predicates:
+          - Path=/api/v1/products/**
