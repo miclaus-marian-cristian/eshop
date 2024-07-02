@@ -1,5 +1,14 @@
 spring:
   application:
     name: product-catalog
+
   config:
     import: optional:configserver:http://localhost:8888
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: eshop-product-catalog-db
+      
+
