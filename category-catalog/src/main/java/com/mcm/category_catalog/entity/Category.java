@@ -1,5 +1,7 @@
 package com.mcm.category_catalog.entity;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,6 +29,6 @@ public class Category {
 	private String name;
 	private boolean isTopLevel;
 	private Set<UUID> subcategoryIds;
-	private Set<String> productAttributes;
+	private List<Map<String, String>> productAttributes;
 	
 }
