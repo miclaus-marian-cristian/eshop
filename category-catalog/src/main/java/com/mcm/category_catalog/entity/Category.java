@@ -8,16 +8,25 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@ToString
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Document
 public class Category {
 	@Id
-	private UUID id;
+	@EqualsAndHashCode.Include
+	private String id;
 	private String name;
+	private boolean isTopLevel;
 	private Set<UUID> subcategoryIds;
 	private Set<String> productAttributes;
+	
 }
