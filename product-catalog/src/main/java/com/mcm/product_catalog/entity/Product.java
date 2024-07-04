@@ -18,6 +18,6 @@ public class Product {
     private double price;
     private String details;
     private List<String> categoryIds;
-    private Map<String, String> attributes;
+    private List<Map<String, String>> attributes;
 
 }
