@@ -1,5 +1,6 @@
 package com.mcm.category_catalog.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -10,11 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.mcm.category_catalog.entity.Category;
 import com.mcm.category_catalog.repository.CategoryRepository;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 public class CategoryServiceTest {
@@ -53,4 +57,30 @@ public class CategoryServiceTest {
 		StepVerifier.create(actualCategories).expectNext(category1).verifyComplete();
 	}
 	
+	@Test
+	@DisplayName("Given there are categories in the db "
+			+ "When the requested category id does not exist "
+			+ "Then a ResponseStatusException is thrown having the status 404")
+	public void shouldThrowAResponseStatusExceptionHaving404AsStatusCode() {
+		
+		when(repo.findById("1")).thenReturn(Mono.empty());
+		
+		StepVerifier.create(categoryService.getById("1"))
+		.expectErrorSatisfies(throwable -> {
+			assertThat(throwable).isInstanceOf(ResponseStatusException.class);
+			var exception = (ResponseStatusException) throwable;
+			assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		}).verify();
+	}
+	
+	@Test
+	@DisplayName("Given there are categories in the db "
+			+ "When the requested category id exists "
+			+ "Then a category is returned")
+	public void shouldReturn1CategoryByID() {
+		var category = Category.builder().id("1").build();
+		when(repo.findById("1")).thenReturn(Mono.just(category));
+		
+		StepVerifier.create(categoryService.getById("1")).expectNext(category).verifyComplete();
+	}
 }
