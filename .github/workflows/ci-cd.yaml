@@ -26,6 +26,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'
+        distribution: corretto
 
     - name: Build and test ${{ matrix.service }}
       working-directory: ${{ matrix.service }}
