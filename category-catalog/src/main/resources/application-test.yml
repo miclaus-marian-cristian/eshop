@@ -1,8 +1,10 @@
 eureka:
   client:
     enabled: false
-    
+      
 spring:
-  cloud:
-    config:
-      enabled: false
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: test
