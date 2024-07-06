@@ -1,6 +1,7 @@
 package com.mcm.category_catalog.service;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mcm.category_catalog.entity.Category;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
+@Service
 public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
