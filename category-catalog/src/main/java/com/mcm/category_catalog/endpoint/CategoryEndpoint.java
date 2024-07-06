@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcm.category_catalog.entity.Category;
 import com.mcm.category_catalog.service.CategoryService;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 @RestController
 @RequestMapping(path = "/api/categories")
 public class CategoryEndpoint {

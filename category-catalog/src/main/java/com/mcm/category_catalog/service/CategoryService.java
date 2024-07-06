@@ -6,11 +6,11 @@ import org.springframework.web.server.ResponseStatusException;
 import com.mcm.category_catalog.entity.Category;
 import com.mcm.category_catalog.repository.CategoryRepository;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
