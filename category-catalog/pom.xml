@@ -145,12 +145,16 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<argLine>-Dspring.profiles.active=test</argLine>
+				</configuration>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+					<argLine>-Dspring.profiles.active=test</argLine>
 					<includes>
 						<include>**/*Test.java</include>
 					</includes>

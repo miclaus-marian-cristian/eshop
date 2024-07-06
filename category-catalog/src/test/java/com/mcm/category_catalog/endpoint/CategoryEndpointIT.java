@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,7 +25,8 @@ import com.mcm.category_catalog.service.CategoryService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@WebFluxTest(properties = {"eureka.client.enabled=false"})
+@WebFluxTest
+@ActiveProfiles("test")
 @Import(ErrorAttributesConfig.class)
 public class CategoryEndpointIT {
 
