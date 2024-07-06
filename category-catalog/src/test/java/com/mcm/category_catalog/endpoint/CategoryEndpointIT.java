@@ -26,7 +26,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @WebFluxTest
-@ActiveProfiles("test")
 @Import(ErrorAttributesConfig.class)
 public class CategoryEndpointIT {
 
