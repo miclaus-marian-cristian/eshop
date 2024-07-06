@@ -24,7 +24,7 @@ jobs:
 
     - name: Build and test category-catalog
       working-directory: category-catalog
-      run: mvn clean verify
+      run: mvn clean verify -Dspring.profiles.active=test
 
     - name: Archive Test Reports for category-catalog
       if: always()
