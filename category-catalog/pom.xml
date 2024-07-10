@@ -41,12 +41,19 @@
 			<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
 		</dependency>
 
-	<!--	<dependency>
+		<!--	<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.mongo</artifactId>
 			<version>4.14.0</version>
 			<scope>test</scope>
 		</dependency>-->
+
+		<dependency>
+			<groupId>de.flapdoodle.embed</groupId>
+			<artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
+			<version>4.11.0</version>
+			<scope>test</scope>
+		</dependency>
 
 
 		<dependency>
@@ -119,7 +126,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					 <jvmArguments>-Dspring.profiles.active=test</jvmArguments>
+					<jvmArguments>-Dspring.profiles.active=test</jvmArguments>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
