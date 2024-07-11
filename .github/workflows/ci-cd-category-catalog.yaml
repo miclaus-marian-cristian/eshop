@@ -22,10 +22,17 @@ jobs:
         java-version: '17'
         distribution: 'corretto'
 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Pull mongo docker image
+      run: docker pull mongodb/mongodb-community-server:7.0.11-ubuntu2204
+
     - name: Start MongoDB
+      needs: Pull mongo docker image
       uses: supercharge/mongodb-github-action@1.11.0
       with:
-        mongodb-version: '8.0'
+        mongodb-version: '7.0.11-ubuntu2204'
         mongodb-username: test
         mongodb-password: test
         mongodb-db: test
@@ -61,9 +68,6 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
 
     - name: Build and push Docker images for category-catalog
       run: |
