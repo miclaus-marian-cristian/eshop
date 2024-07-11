@@ -31,7 +31,7 @@ jobs:
     - name: Start MongoDB
       uses: supercharge/mongodb-github-action@1.11.0
       with:
-        mongodb-version: '7.0.11-ubuntu2204'
+        mongodb-version: '7.0.11'
         mongodb-username: test
         mongodb-password: test
         mongodb-db: test
