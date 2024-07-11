@@ -1,4 +1,10 @@
 eureka:
   client:
     enabled: false
-      
+
+spring:
+  data:
+    mongodb:
+      database: test
+      username: test
+      password: test    
