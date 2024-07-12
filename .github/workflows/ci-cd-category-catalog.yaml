@@ -32,9 +32,6 @@ jobs:
       uses: supercharge/mongodb-github-action@1.11.0
       with:
         mongodb-version: '7.0.11'
-        mongodb-username: test
-        mongodb-password: test
-        mongodb-db: test
 
     - name: Build and test category-catalog
       working-directory: category-catalog
