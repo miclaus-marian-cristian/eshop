@@ -83,4 +83,14 @@ public class CategoryServiceTest {
 		
 		StepVerifier.create(categoryService.getById("1")).expectNext(category).verifyComplete();
 	}
+	
+	@Test
+	public void givenThereAre2CtgsWhen2CtgsNamePrefixMatchesTheKeywordThenReturn2Ctgs() {
+		var electronicDevices = Category.builder().name("Electronic Devices").build();
+		var electricGuitars = Category.builder().name("Electric Guitars").build();
+		var list = List.of(electronicDevices, electricGuitars);
+		when(repo.findByNameIgnoreCaseStartingWith("ele")).thenReturn(Flux.fromIterable(list));
+		
+		StepVerifier.create(categoryService.getByKeyword("ele")).expectNextCount(1).consumeNextWith(ctgList -> assertThat(ctgList.getCategories().size()).isEqualTo(2));
+	}
 }

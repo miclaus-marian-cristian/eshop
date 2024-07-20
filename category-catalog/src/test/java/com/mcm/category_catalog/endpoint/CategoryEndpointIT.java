@@ -3,6 +3,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
@@ -14,12 +15,12 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mcm.category_catalog.config.httperror.ErrorAttributesConfig;
 import com.mcm.category_catalog.entity.Category;
+import com.mcm.category_catalog.pojo.CategoryList;
 import com.mcm.category_catalog.service.CategoryService;
 
 import reactor.core.publisher.Flux;
@@ -112,6 +113,19 @@ public class CategoryEndpointIT {
         .value(ctgry -> {
         	assertThat(ctgry.getId()).isEqualTo("1");
         });
+    }
+    
+    @Test
+    public void given3CtgsExistWhenTheKeywordMatchesThePrefixOfOnly2CtgsThenReturn2CtgsAndStatusOK() {
+    	var cat1 = Category.builder().name("Electrics").build();
+    	var cat2 = Category.builder().name("Electronics").build();
+    	when(categoryService.getByKeyword("ele")).thenReturn(Mono.just(new CategoryList(List.of(cat1, cat2))));
+    	webTestClient.get()
+    	.uri("/api/categories/keyword/ele")
+    	.exchange()
+    	.expectStatus().isOk()
+    	.expectBody(CategoryList.class)
+    	.value(ctgList -> assertThat(ctgList.getCategories().size()).isEqualTo(2));
     }
     
 }
