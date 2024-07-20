@@ -11,5 +11,7 @@ import reactor.core.publisher.Flux;
 public interface CategoryRepository extends ReactiveMongoRepository<Category, String>{
 	
 	public Flux<Category> findByIsTopLevel(boolean isTopLevel);
+	
+	public Flux<Category> findByNameIgnoreCaseStartingWith(String prefix);
 
 }

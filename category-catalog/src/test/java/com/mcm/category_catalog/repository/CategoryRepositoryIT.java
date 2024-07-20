@@ -39,7 +39,7 @@ public class CategoryRepositoryIT {
 		Flux<Category> actualCategories = repo.findByIsTopLevel(true);
 		
 		 // Log the retrieved categories for debugging
-        actualCategories.doOnNext(category -> System.out.println("Retrieved category: " + category)).subscribe();
+        actualCategories.doOnNext(category -> System.out.println("Retrieved category: " + category)).blockLast();
 		
 		StepVerifier.create(actualCategories).expectNextMatches(category -> {
             
@@ -47,5 +47,21 @@ public class CategoryRepositoryIT {
 			return true;
 		}).verifyComplete();
 		
+	}
+	
+	@Test
+	public void givenThereAre3CtgsWhenOnly2CtgsNamePrefixMatchesTheKeywordThenReturn2Ctgs() {
+		System.out.println("Start test: givenThereAre3CtgsWhenOnly2CtgsNamePrefixMatchesTheKeywordThenReturn2Ctgs");
+		var electronicDevices = Category.builder().name("Electronic Devices").build();
+		var electricGuitars = Category.builder().name("Electric Guitars").build();
+		var clothes = Category.builder().name("Clothes").build();
+		var list = List.of(electronicDevices, electricGuitars, clothes);
+		repo.saveAll(list).blockLast();
+		
+		Flux<Category> actualCategories = repo.findByNameIgnoreCaseStartingWith("ele");
+		System.out.println("Retrieved categories:");
+		actualCategories.doOnNext(category -> System.out.println("Retrieved category: " + category)).blockLast();
+		
+		StepVerifier.create(actualCategories).expectNextCount(2).as("Expected to return 2 but got a different number of categories!").verifyComplete();
 	}
 }
