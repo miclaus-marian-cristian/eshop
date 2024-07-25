@@ -1,12 +1,8 @@
 package com.mcm.category_catalog.endpoint;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 import com.mcm.category_catalog.entity.Category;
 import com.mcm.category_catalog.pojo.CategoryList;
 import com.mcm.category_catalog.service.CategoryService;
@@ -21,6 +17,12 @@ import reactor.core.publisher.Mono;
 public class CategoryEndpoint {
 
 	private final CategoryService categoryService;
+	
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(code = HttpStatus.CREATED)
+	public Mono<Category> create(@RequestBody Category ctgry){
+		return categoryService.create(ctgry);
+	}
 
 	@GetMapping("/top-level")
 	public Flux<Category> getTopLevelCategories() {
@@ -34,7 +36,7 @@ public class CategoryEndpoint {
 	
 	@GetMapping("/keyword/{keyword}")
 	@ResponseStatus(code = HttpStatus.OK)
-	public Mono<CategoryList> getByKeyword(@PathVariable("keyword") String keyword){
+	public Mono<CategoryList> getByKeyword(@PathVariable(name = "keyword") String keyword){
 		return categoryService.getByKeyword(keyword);
 	}
 

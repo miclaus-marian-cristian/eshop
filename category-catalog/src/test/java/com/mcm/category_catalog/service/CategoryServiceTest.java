@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mcm.category_catalog.entity.Category;
+import com.mcm.category_catalog.pojo.exception.EntityAlreadyExistsException;
+import com.mcm.category_catalog.pojo.exception.EntityNotFoundException;
 import com.mcm.category_catalog.repository.CategoryRepository;
 
 import reactor.core.publisher.Flux;
@@ -61,15 +63,13 @@ public class CategoryServiceTest {
 	@DisplayName("Given there are categories in the db "
 			+ "When the requested category id does not exist "
 			+ "Then a ResponseStatusException is thrown having the status 404")
-	public void shouldThrowAResponseStatusExceptionHaving404AsStatusCode() {
+	public void shouldThrowAEntityNotFoundException() {
 		
 		when(repo.findById("1")).thenReturn(Mono.empty());
 		
 		StepVerifier.create(categoryService.getById("1"))
 		.expectErrorSatisfies(throwable -> {
-			assertThat(throwable).isInstanceOf(ResponseStatusException.class);
-			var exception = (ResponseStatusException) throwable;
-			assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+			assertThat(throwable).isInstanceOf(EntityNotFoundException.class);
 		}).verify();
 	}
 	
@@ -86,11 +86,21 @@ public class CategoryServiceTest {
 	
 	@Test
 	public void givenThereAre2CtgsWhen2CtgsNamePrefixMatchesTheKeywordThenReturn2Ctgs() {
-		var electronicDevices = Category.builder().name("Electronic Devices").build();
-		var electricGuitars = Category.builder().name("Electric Guitars").build();
-		var list = List.of(electronicDevices, electricGuitars);
+		var electronicDevicesCtgry = Category.builder().name("Electronic Devices").build();
+		var electricGuitarsCtgry = Category.builder().name("Electric Guitars").build();
+		var list = List.of(electronicDevicesCtgry, electricGuitarsCtgry);
 		when(repo.findByNameIgnoreCaseStartingWith("ele")).thenReturn(Flux.fromIterable(list));
 		
 		StepVerifier.create(categoryService.getByKeyword("ele")).expectNextCount(1).consumeNextWith(ctgList -> assertThat(ctgList.getCategories().size()).isEqualTo(2));
+	}
+	
+	@Test
+	public void givenANewCtgryIsBeingAddedWhenTheNewCtgrysNameAlreadyExistsThenThrowResponseStatusException() {
+		var electricGuitarsCtgry = Category.builder().name("Electric Guitars").build();
+		when(repo.findByNameIgnoreCaseStartingWith("Electric Guitars")).thenReturn(Flux.just(electricGuitarsCtgry));
+		when(repo.save(electricGuitarsCtgry)).thenReturn(Mono.just(electricGuitarsCtgry));
+		
+		StepVerifier.create(categoryService.create(electricGuitarsCtgry)).expectError(EntityAlreadyExistsException.class).verify();
+		
 	}
 }
