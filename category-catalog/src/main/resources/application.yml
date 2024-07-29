@@ -8,3 +8,10 @@ spring:
   profiles:
     active:
     - test
+    
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/auth/realms/eshop-prod
+          #jwk-set-uri: http://localhost:8080/auth/realms/eshop-prod/protocol/open

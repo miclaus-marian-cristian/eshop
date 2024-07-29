@@ -2,6 +2,7 @@ package com.mcm.category_catalog.endpoint;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.mcm.category_catalog.entity.Category;
 import com.mcm.category_catalog.pojo.CategoryList;
@@ -38,6 +39,12 @@ public class CategoryEndpoint {
 	@ResponseStatus(code = HttpStatus.OK)
 	public Mono<CategoryList> getByKeyword(@PathVariable(name = "keyword") String keyword){
 		return categoryService.getByKeyword(keyword);
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Mono<Category> createCategory(@RequestBody Category category) {
+		return categoryService.create(category);
 	}
 
 }

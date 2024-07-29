@@ -95,7 +95,7 @@ public class CategoryServiceTest {
 	}
 	
 	@Test
-	public void givenANewCtgryIsBeingAddedWhenTheNewCtgrysNameAlreadyExistsThenThrowResponseStatusException() {
+	public void givenANewCtgryIsBeingAddedWhenTheNewCtgrysNameAlreadyExistsThenThrowEntityAlreadyExistsException() {
 		var electricGuitarsCtgry = Category.builder().name("Electric Guitars").build();
 		when(repo.findByNameIgnoreCaseStartingWith("Electric Guitars")).thenReturn(Flux.just(electricGuitarsCtgry));
 		when(repo.save(electricGuitarsCtgry)).thenReturn(Mono.just(electricGuitarsCtgry));
