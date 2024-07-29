@@ -33,7 +33,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.mcm.category_catalog.config.TestSecurityConfig;
 import com.mcm.category_catalog.config.httperror.GlobalExceptionHandler;
-import com.mcm.category_catalog.config.security.SecurityConfig;
 import com.mcm.category_catalog.entity.Category;
 import com.mcm.category_catalog.pojo.CategoryList;
 import com.mcm.category_catalog.pojo.exception.EntityAlreadyExistsException;
@@ -206,6 +205,27 @@ public class CategoryEndpointIT {
                 .build();
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(JwsHeader.with(SignatureAlgorithm.RS256).build(), claimsSet)).getTokenValue();
+    }
+	
+	@Test
+	public void testUpdateCategoryWhenTheCategoryDoesNotExist() {
+		var ctgryBeingUpdated = Category.builder().name("Electronics").build();
+		when(categoryService.updateCategory("1", ctgryBeingUpdated)).thenThrow(new EntityNotFoundException());
+
+		webTestClient.patch().uri(ENDPOINT_BASE_URL + "/1").contentType(MediaType.APPLICATION_JSON)
+				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(ctgryBeingUpdated)
+				.exchange().expectStatus().isEqualTo(HttpStatus.NOT_FOUND);
+	}
+	
+	@Test
+	public void testUpdateCategoryWhenTheCategoryExists() {
+        var ctgryBeingUpdated = Category.builder().name("Electronics").build();
+        when(categoryService.updateCategory("1", ctgryBeingUpdated)).thenReturn(Mono.just(ctgryBeingUpdated));
+
+        webTestClient.patch().uri(ENDPOINT_BASE_URL + "/1").contentType(MediaType.APPLICATION_JSON)
+                .headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(ctgryBeingUpdated)
+                .exchange().expectStatus().isOk().expectBody(Category.class)
+                .value(ctgry -> assertThat(ctgry.getName()).isEqualTo(ctgryBeingUpdated.getName()));
     }
 
 }

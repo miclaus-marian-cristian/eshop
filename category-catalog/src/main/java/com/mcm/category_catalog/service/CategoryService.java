@@ -41,4 +41,24 @@ public class CategoryService {
 				.collectList()
 				.flatMap(list -> Mono.just((Category) list.get(0)));
 	}
+	
+	public Mono<Category> updateCategory(String id, Category categoryReq) {
+		return categoryRepository.findById(id)
+				.switchIfEmpty(Mono.error(new EntityNotFoundException()))
+				.doOnNext(ctg -> {
+					if (categoryReq.getName() != null) {
+						ctg.setName(categoryReq.getName());
+					}
+					if (categoryReq.isTopLevel() != ctg.isTopLevel()) {
+						ctg.setTopLevel(categoryReq.isTopLevel());
+					}
+					if (categoryReq.getSubcategoryIds() != null) {
+						ctg.setSubcategoryIds(categoryReq.getSubcategoryIds());
+					}
+					if (categoryReq.getProductAttributes() != null) {
+						ctg.setProductAttributes(categoryReq.getProductAttributes());
+					}
+				})
+				.flatMap(categoryRepository::save);
+	}
 }

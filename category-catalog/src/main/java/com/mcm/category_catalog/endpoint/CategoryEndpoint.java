@@ -46,5 +46,11 @@ public class CategoryEndpoint {
 	public Mono<Category> createCategory(@RequestBody Category category) {
 		return categoryService.create(category);
 	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Mono<Category> updateCategory(@PathVariable("id") String id, @RequestBody Category category) {
+		return categoryService.updateCategory(id, category);
+	}
 
 }

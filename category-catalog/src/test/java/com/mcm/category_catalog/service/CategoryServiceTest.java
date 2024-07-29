@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.mcm.category_catalog.entity.Category;
 import com.mcm.category_catalog.pojo.exception.EntityAlreadyExistsException;
@@ -102,5 +100,25 @@ public class CategoryServiceTest {
 		
 		StepVerifier.create(categoryService.create(electricGuitarsCtgry)).expectError(EntityAlreadyExistsException.class).verify();
 		
+	}
+	
+	@Test
+	public void testUpdateCategoryWhenCategoryDoesNotExist() {
+        when(repo.findById("1")).thenReturn(Mono.empty());
+        var category = Category.builder().id("1").build();
+        
+        StepVerifier.create(categoryService.updateCategory("1", category))
+        .expectErrorSatisfies(throwable -> {
+            assertThat(throwable).isInstanceOf(EntityNotFoundException.class);
+        }).verify();
+    }
+	
+	@Test
+	public void testUpdateCategoryWhenCategoryExists() {
+		var category = Category.builder().id("1").name("Electronics").build();
+		when(repo.findById("1")).thenReturn(Mono.just(category));
+		when(repo.save(category)).thenReturn(Mono.just(category));
+
+		StepVerifier.create(categoryService.updateCategory("1", category)).expectNext(category).verifyComplete();
 	}
 }
