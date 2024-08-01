@@ -30,7 +30,7 @@ public class Category {
 	private String id;
 	private String name;
 	private boolean isTopLevel;
-	private Set<UUID> subcategoryIds;
+	private Set<String> subcategoryIds;
 	private List<Map<String, String>> productAttributes;
 	
 }
