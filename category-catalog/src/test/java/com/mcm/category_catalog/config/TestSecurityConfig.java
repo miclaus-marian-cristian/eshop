@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.mcm.category_catalog.config.security.ReactiveJwtAuthenticationConverterAdapter;
+
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -114,17 +116,5 @@ public class TestSecurityConfig {
         };
     }
     
-    private static class ReactiveJwtAuthenticationConverterAdapter implements Converter<Jwt, Mono<JwtAuthenticationToken>> {
-        private final JwtAuthenticationConverter jwtAuthenticationConverter;
-
-        public ReactiveJwtAuthenticationConverterAdapter(JwtAuthenticationConverter jwtAuthenticationConverter) {
-            this.jwtAuthenticationConverter = jwtAuthenticationConverter;
-        }
-
-        @Override
-        public Mono<JwtAuthenticationToken> convert(Jwt jwt) {
-            return Mono.justOrEmpty((JwtAuthenticationToken)jwtAuthenticationConverter.convert(jwt));
-        }
-    }
 
 }
