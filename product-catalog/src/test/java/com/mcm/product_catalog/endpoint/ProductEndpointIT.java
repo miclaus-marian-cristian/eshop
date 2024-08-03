@@ -35,6 +35,7 @@ import com.mcm.product_catalog.mapper.ProductMapper;
 import com.mcm.product_catalog.pojo.CreateProductRequest;
 import com.mcm.product_catalog.service.ProductService;
 import com.mcm.product_catalog.util.KeyPairUtil;
+import com.mcm.product_catalog.util.ProductUtils;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -95,27 +96,13 @@ public class ProductEndpointIT {
         return this.jwtEncoder.encode(JwtEncoderParameters.from(JwsHeader.with(SignatureAlgorithm.RS256).build(), claimsSet)).getTokenValue();
     }
 	
-	// method to generate a string of specific length
-	private String generateString(int length) {
-		return new String(new char[length]).replace('\0', 'a');
-	}
-	
-	// method to generate a map of attributes of specific size
-	private Map<String, String> generateAttributes(int size) {
-		Map<String, String> attributes = new java.util.HashMap<>();
-		for (int i = 1; i <= size; i++) {
-			attributes.put("key" + i, "value");
-		}
-		return attributes;
-	}
-	
 	@Test
 	void testCreateProductWhenProductNameIsNull() {
 		var invalidProduct = new Product();
 		invalidProduct.setPrice(100);
-		invalidProduct.setDetails(generateString(200));
+		invalidProduct.setDetails(ProductUtils.generateString(200));
 		invalidProduct.setCategoryIds(Set.of("1"));
-		invalidProduct.setAttributes(generateAttributes(4));
+		invalidProduct.setAttributes(ProductUtils.generateAttributes(4));
 		
 		webTestClient.post().uri(ENDPOINT_BASE_URL)
 		.contentType(MediaType.APPLICATION_JSON)
@@ -130,9 +117,9 @@ public class ProductEndpointIT {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
 		invalidProduct.setPrice(0);
-		invalidProduct.setDetails(generateString(200));
+		invalidProduct.setDetails(ProductUtils.generateString(200));
 		invalidProduct.setCategoryIds(Set.of("1"));
-		invalidProduct.setAttributes(generateAttributes(4));
+		invalidProduct.setAttributes(ProductUtils.generateAttributes(4));
 		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
 				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(invalidProduct)
 				.exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST).expectBody().jsonPath("$.detail")
@@ -145,7 +132,7 @@ public class ProductEndpointIT {
 		invalidProduct.setName("Product Name");
 		invalidProduct.setPrice(100);
 		invalidProduct.setCategoryIds(Set.of("1"));
-		invalidProduct.setAttributes(generateAttributes(4));
+		invalidProduct.setAttributes(ProductUtils.generateAttributes(4));
 		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
 				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(invalidProduct)
 				.exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST).expectBody().jsonPath("$.detail")
@@ -157,9 +144,9 @@ public class ProductEndpointIT {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
 		invalidProduct.setPrice(100);
-		invalidProduct.setDetails(generateString(49));
+		invalidProduct.setDetails(ProductUtils.generateString(49));
 		invalidProduct.setCategoryIds(Set.of("1"));
-		invalidProduct.setAttributes(generateAttributes(4));
+		invalidProduct.setAttributes(ProductUtils.generateAttributes(4));
 		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
 				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(invalidProduct)
 				.exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST).expectBody().jsonPath("$.detail")
@@ -171,8 +158,8 @@ public class ProductEndpointIT {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
 		invalidProduct.setPrice(100);
-		invalidProduct.setDetails(generateString(200));
-		invalidProduct.setAttributes(generateAttributes(4));
+		invalidProduct.setDetails(ProductUtils.generateString(200));
+		invalidProduct.setAttributes(ProductUtils.generateAttributes(4));
 		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
 				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(invalidProduct)
 				.exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST).expectBody().jsonPath("$.detail")
@@ -184,9 +171,9 @@ public class ProductEndpointIT {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
 		invalidProduct.setPrice(100);
-		invalidProduct.setDetails(generateString(200));
+		invalidProduct.setDetails(ProductUtils.generateString(200));
 		invalidProduct.setCategoryIds(Set.of());
-		invalidProduct.setAttributes(generateAttributes(4));
+		invalidProduct.setAttributes(ProductUtils.generateAttributes(4));
 		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
 				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(invalidProduct)
 				.exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST).expectBody().jsonPath("$.detail")
@@ -198,7 +185,7 @@ public class ProductEndpointIT {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
 		invalidProduct.setPrice(100);
-		invalidProduct.setDetails(generateString(200));
+		invalidProduct.setDetails(ProductUtils.generateString(200));
 		invalidProduct.setCategoryIds(Set.of("1"));
 		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
 				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(invalidProduct)
@@ -211,9 +198,9 @@ public class ProductEndpointIT {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
 		invalidProduct.setPrice(100);
-		invalidProduct.setDetails(generateString(200));
+		invalidProduct.setDetails(ProductUtils.generateString(200));
 		invalidProduct.setCategoryIds(Set.of("1"));
-		invalidProduct.setAttributes(generateAttributes(3));
+		invalidProduct.setAttributes(ProductUtils.generateAttributes(3));
 		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
 				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(invalidProduct)
 				.exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST).expectBody().jsonPath("$.detail")
@@ -225,9 +212,9 @@ public class ProductEndpointIT {
         var invalidProduct = new Product();
         invalidProduct.setName("Product Name");
         invalidProduct.setPrice(100);
-        invalidProduct.setDetails(generateString(200));
+        invalidProduct.setDetails(ProductUtils.generateString(200));
         invalidProduct.setCategoryIds(Set.of("1"));
-        invalidProduct.setAttributes(generateAttributes(51));
+        invalidProduct.setAttributes(ProductUtils.generateAttributes(51));
         webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
                 .headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(invalidProduct)
                 .exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
@@ -240,9 +227,9 @@ public class ProductEndpointIT {
 		CreateProductRequest validProduct = new CreateProductRequest();
 		validProduct.setName("Product Name");
 		validProduct.setPrice(100);
-		validProduct.setDetails(generateString(200));
+		validProduct.setDetails(ProductUtils.generateString(200));
 		validProduct.setCategoryIds(Set.of("1"));
-		validProduct.setAttributes(generateAttributes(4));
+		validProduct.setAttributes(ProductUtils.generateAttributes(4));
 		
 		when(productService.createProduct(validProduct)).thenReturn(Mono.just(ProductMapper.toProduct(validProduct)));
 		

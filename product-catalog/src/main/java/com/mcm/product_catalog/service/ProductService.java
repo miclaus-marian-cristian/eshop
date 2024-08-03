@@ -16,11 +16,18 @@ import reactor.core.publisher.Mono;
 public class ProductService {
 
 	private final ProductRepository productRepository;
-	
+
 	public Mono<Product> createProduct(CreateProductRequest productRequest) {
+
 		Product product = ProductMapper.toProduct(productRequest);
+
 		return productRepository.findByName(product.getName())
-				.switchIfEmpty(productRepository.save(product))
-				.flatMap(existingProduct -> Mono.error(new EntityAlreadyExistsException()));
+				.flatMap(existingProduct -> Mono.<Product>error(new EntityAlreadyExistsException()))
+				.switchIfEmpty(productRepository.save(product));
+	}
+
+	// find products by category
+	public Mono<Product> findByCategoryIds(String categoryId) {
+		return productRepository.findByCategoryIds(categoryId);
 	}
 }
