@@ -6,11 +6,14 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -66,10 +69,28 @@ public class TestSecurityConfig {
     @Primary
     ReactiveJwtDecoder jwtDecoder() {
         return token -> {
+        	// Parse the token to get the claims
+            String[] parts = token.split("\\.");
+            String payload = new String(Base64.getDecoder().decode(parts[1]));
+            JSONObject jsonObject = null;
+			try {
+				jsonObject = new JSONObject(payload);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+            // Get the role from the token's claims
+			String role = null;
+            try {
+				role = jsonObject.getString("authorities");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+            
             JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .subject("user")
-                .claim("scope", "ADMIN") // Note: No ROLE_ prefix
-                .claim("authorities", "ROLE_ADMIN") // Ensure 'ROLE_' prefix for roles
+                .claim("scope", role) // Note: No ROLE_ prefix
+                .claim("authorities", "ROLE_"+role) // Ensure 'ROLE_' prefix for roles
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(3600))
                 .build();

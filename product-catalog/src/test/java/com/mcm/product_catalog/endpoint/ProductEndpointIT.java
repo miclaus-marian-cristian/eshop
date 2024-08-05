@@ -1,5 +1,6 @@
 package com.mcm.product_catalog.endpoint;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
@@ -8,15 +9,18 @@ import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -31,8 +35,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import com.mcm.product_catalog.config.TestSecurityConfig;
 import com.mcm.product_catalog.entity.Product;
 import com.mcm.product_catalog.exception.handler.GlobalExceptionHandler;
-import com.mcm.product_catalog.mapper.ProductMapper;
 import com.mcm.product_catalog.pojo.CreateProductRequest;
+import com.mcm.product_catalog.pojo.ProductPage;
 import com.mcm.product_catalog.service.ProductService;
 import com.mcm.product_catalog.util.KeyPairUtil;
 import com.mcm.product_catalog.util.ProductUtils;
@@ -43,6 +47,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
 import jakarta.annotation.PostConstruct;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @WebFluxTest
@@ -97,6 +102,7 @@ public class ProductEndpointIT {
     }
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the sent Product object has a null name, then return status code 400 and the correct error response body")
 	void testCreateProductWhenProductNameIsNull() {
 		var invalidProduct = new Product();
 		invalidProduct.setPrice(100);
@@ -113,6 +119,7 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the price field of the sent Product object is less then one, then return status code 400 and the correct error response body")
 	void testCreateProductWhenProductPriceIsLessThanOne() {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
@@ -127,6 +134,7 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the sent Product object has details that are null, then return status code 400 and the correct error response body")
 	void testCreateProductWhenProductDetailsIsNull() {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
@@ -140,6 +148,7 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the sent Product object has details with less than 50 characters, then return status code 400 and the correct error response body")
 	void testCreateProductWhenProductDetailsLengthIsLessThanFifty() {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
@@ -154,6 +163,7 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the sent Product object doesn't contain the categoryIds field, then return status code 400 and the correct error response body")
 	void testCreateProductWhenProductCategoryIdsIsNull() {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
@@ -167,6 +177,7 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the sent Product object has an empty categoryIds field, then return status code 400 and the correct error response body")
 	void testCreateProductWhenProductCategoryIdsIsEmpty() {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
@@ -181,6 +192,7 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the sent Product object has null attributes, then return status code 400")
 	void testCreateProductWhenProductAttributesIsNull() {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
@@ -194,6 +206,7 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the sent Product object has 3 attributes, then return status code 400")
 	void testCreateProductWhenProductAttributesSizeIsLessThanFour() {
 		var invalidProduct = new Product();
 		invalidProduct.setName("Product Name");
@@ -208,6 +221,7 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when the sent Product object has 51 attributes, then return status code 400")
 	void testCreateProductWhenProductAttributesSizeIsGreaterThanFifty() {
         var invalidProduct = new Product();
         invalidProduct.setName("Product Name");
@@ -222,21 +236,100 @@ public class ProductEndpointIT {
 	}
 	
 	@Test
+	@DisplayName("Given user is authenticated and is ADMIN, when createProduct is called, then return status code 201")
 	void testCreateProductWhenProductIsValid() {
+		
 		//create a valid CreateProductRequest
 		CreateProductRequest validProduct = new CreateProductRequest();
 		validProduct.setName("Product Name");
 		validProduct.setPrice(100);
-		validProduct.setDetails(ProductUtils.generateString(200));
+		validProduct.setDetails(ProductUtils.generateString(50));
 		validProduct.setCategoryIds(Set.of("1"));
 		validProduct.setAttributes(ProductUtils.generateAttributes(4));
 		
-		when(productService.createProduct(validProduct)).thenReturn(Mono.just(ProductMapper.toProduct(validProduct)));
+		when(productService.createProduct(Mockito.any(CreateProductRequest.class))).thenReturn(Mono.just(new Product()));
 		
 		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
 				.headers(headers -> headers.setBearerAuth(generateMockToken("ADMIN"))).bodyValue(validProduct)
-				.exchange().expectStatus().isCreated().expectBody(Product.class)
-				.value(product -> product.getName().equals(validProduct.getName()));
+				.exchange()
+				.expectStatus().isCreated()
+				.expectBody(Product.class);
+	}
+	
+	@Test
+	@DisplayName("Given user is authenticated, when createProduct is called, then return status code 403")
+	void testCreateProductWhenUserIsNotAdmin() {
+        //create a valid CreateProductRequest
+        CreateProductRequest validProductReq = new CreateProductRequest();
+        validProductReq.setName("Product Name");
+        validProductReq.setPrice(100);
+        validProductReq.setDetails(ProductUtils.generateString(200));
+        validProductReq.setCategoryIds(Set.of("1"));
+        validProductReq.setAttributes(ProductUtils.generateAttributes(4));
+        
+		// mock the createProduct method to return a product
+		when(productService.createProduct(Mockito.any(CreateProductRequest.class))).thenReturn(Mono.just(new Product()));
+		
+		// print the result of the createProduct method
+	    Mono<Product> productMono = productService.createProduct(validProductReq);
+	    System.out.println("testCreateProductWhenUserIsNotAdmin - Method returned: " + productMono);
+		
+        webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON)
+                .headers(headers -> headers.setBearerAuth(generateMockToken("USER"))).bodyValue(validProductReq)
+                .exchange().expectStatus().isForbidden();
+	}
+	
+	@Test
+	@DisplayName("Given user is not authenticated, when createProduct is called, then return status code 401")
+	void testCreateProductWhenUserIsNotAuthenticated() {
+		// create a valid CreateProductRequest
+		CreateProductRequest validProductReq = new CreateProductRequest();
+		validProductReq.setName("Product Name");
+		validProductReq.setPrice(100);
+		validProductReq.setDetails(ProductUtils.generateString(200));
+		validProductReq.setCategoryIds(Set.of("1"));
+		validProductReq.setAttributes(ProductUtils.generateAttributes(4));
+
+		// mock the createProduct method to return a product
+		when(productService.createProduct(Mockito.any(CreateProductRequest.class)))
+				.thenReturn(Mono.just(new Product()));
+
+		// print the result of the createProduct method
+		Mono<Product> productMono = productService.createProduct(validProductReq);
+		System.out.println("testCreateProductWhenUserIsNotAuthenticated - Method returned: " + productMono);
+
+		webTestClient.post().uri(ENDPOINT_BASE_URL).contentType(MediaType.APPLICATION_JSON).bodyValue(validProductReq)
+				.exchange().expectStatus().isUnauthorized();
 	}
 
+	// test findByCategoryId method with authenticated user
+	@Test
+	@DisplayName("Given user is authenticated, when findByCategoryId is called, then return status code 200")
+	void testFindByCategoryIdWhenUserIsAuthenticated() {
+        // mock the findByCategoryIds method to return a product
+		when(productService.findByCategoryId(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(Mono.just(ProductPage.builder().build()));
+
+        webTestClient.post().uri(ENDPOINT_BASE_URL + "/categories/1").contentType(MediaType.APPLICATION_JSON)
+                .headers(headers -> headers.setBearerAuth(generateMockToken("USER"))).bodyValue("1").exchange()
+                .expectStatus().isOk().expectBody(List.class).value((products) -> {
+                    // assert that the returned list is not empty
+                	assertThat(products).isNotEmpty();
+                });
+    }
+	
+	// test findByCategoryId method with unauthenticated user
+	@Test
+	@DisplayName("Given user is not authenticated, when findByCategoryId is called, then return status code 200")
+	void testFindByCategoryIdWhenUserIsNotAuthenticated() {
+        // mock the findByCategoryIds method to return a product
+		when(productService.findByCategoryId(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(Mono.just(ProductPage.builder().build()));
+
+
+        webTestClient.post().uri(ENDPOINT_BASE_URL + "/categories/1").contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("1").exchange().expectStatus().isOk()
+                .expectBody(List.class).value((products) -> {
+                    // assert that the returned list is not empty
+                	assertThat(products).isNotEmpty();
+                });
+    }
 }

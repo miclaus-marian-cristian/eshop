@@ -1,5 +1,7 @@
 package com.mcm.product_catalog.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,6 @@ public interface ProductRepository extends ReactiveMongoRepository<Product, Stri
 	Mono<Product> findByName(String name);
 	
 	//method to find products by category
-	Mono<Product> findByCategoryIds(String categoryId);
+	Mono<Page<Product>> findByCategoryIdsContains(String categoryId, Pageable page);
 
 }
